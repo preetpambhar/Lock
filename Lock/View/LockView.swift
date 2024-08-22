@@ -19,6 +19,7 @@ struct LockView<Content: View>: View {
     }
     //View Properties
     @State private var pin: String = ""
+    @State private var animateField: Bool = false
     var body: some View {
         GeometryReader {
             let size =  $0.size
@@ -46,6 +47,8 @@ struct LockView<Content: View>: View {
             Text("Enter pin")
                 .font(.title.bold())
                 .frame(maxWidth: .infinity)
+            ///Adding wiggling animation for wrong  password with keyframe animator
+            ///
             HStack(spacing: 10){
                 ForEach(0..<4, id: \.self){index in
                     RoundedRectangle(cornerRadius: 10)
@@ -64,6 +67,16 @@ struct LockView<Content: View>: View {
                         }
                 }
             }
+            .keyframeAnimator(initialValue: CGFloat.zero, trigger: animateField, content: { content, value in
+                content
+                    .offset(x: value)
+            }, keyframes: { _ in
+                CubicKeyframe(30, duration: 0.07)
+                CubicKeyframe(-30, duration: 0.07)
+                CubicKeyframe(20, duration: 0.07)
+                CubicKeyframe(-20, duration: 0.07)
+                CubicKeyframe(0, duration: 0.07)
+            })
             .padding(.top, 15)
             .overlay(alignment: .bottomTrailing, content: {
                 Button("Forgot pin?", action: forgotPin)
@@ -128,6 +141,7 @@ struct LockView<Content: View>: View {
                     }else{
                         print("Wrong Pin")
                         pin = ""
+                        animateField.toggle()
                     }
                 }
             }
